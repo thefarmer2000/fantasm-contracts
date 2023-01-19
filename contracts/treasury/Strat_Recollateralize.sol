@@ -5,7 +5,7 @@ pragma solidity 0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "../interfaces/IFantasticTreasury.sol";
+import "../interfaces/IWonderfulTreasury.sol";
 import "../interfaces/IPool.sol";
 import "../interfaces/IWETH.sol";
 import "../libs/WethUtils.sol";
@@ -14,9 +14,9 @@ contract StratRecollateralize is Ownable {
     using SafeERC20 for IWETH;
 
     IPool public immutable pool;
-    IFantasticTreasury public immutable treasury;
+    IWonderfulTreasury public immutable treasury;
 
-    constructor(IFantasticTreasury _treasury, IPool _pool) {
+    constructor(IWonderfulTreasury _treasury, IPool _pool) {
         treasury = _treasury;
         pool = _pool;
     }

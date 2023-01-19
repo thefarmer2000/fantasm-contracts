@@ -9,14 +9,14 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 abstract contract Fund is Ownable, Initializable {
     using SafeERC20 for IERC20;
-    IERC20 public fsm;
+    IERC20 public gfx;
     uint256 public claimedAmount;
 
     /*===================== CONSTRUCTOR =====================*/
 
-    function initialize(address _fsm) external initializer {
-        require(_fsm != address(0), "Fund::constructor: Invalid address");
-        fsm = IERC20(_fsm);
+    function initialize(address _gfx) external initializer {
+        require(_gfx != address(0), "Fund::constructor: Invalid address");
+        gfx = IERC20(_gfx);
     }
 
     /*===================== VIEWS =====================*/
@@ -28,7 +28,7 @@ abstract contract Fund is Ownable, Initializable {
     function vestingDuration() public view virtual returns (uint256);
 
     function currentBalance() public view returns (uint256) {
-        return fsm.balanceOf(address(this));
+        return gfx.balanceOf(address(this));
     }
 
     function vestedBalance() public view returns (uint256) {
@@ -55,6 +55,6 @@ abstract contract Fund is Ownable, Initializable {
         require(amount <= claimable(), "Fund::transfer: > vestedAmount");
 
         claimedAmount = claimedAmount + amount;
-        fsm.safeTransfer(receiver, amount);
+        gfx.safeTransfer(receiver, amount);
     }
 }

@@ -4,11 +4,10 @@ pragma solidity 0.8.4;
 
 import "./Fund.sol";
 
-contract FsmDevFund is Fund {
+contract GFXDevFund is Fund {
     uint256 public constant ALLOCATION = 3_000_000 ether; // 10%
-    uint256 public constant VESTING_DURATION = 2 * 365 * 24 * 3600; // 2 years
-    uint256 public constant VESTING_START = 1652968800; // 19th May 2022, 2PM UTC
-
+    uint256 public constant VESTING_DURATION = 3 * 365 * 24 * 3600; // 3 years
+    uint256 public constant VESTING_START = 1677560400; // 28 Feb 2023, 00:00:00 UTC
     /*===================== VIEWS =====================*/
 
     function allocation() public pure override returns (uint256) {

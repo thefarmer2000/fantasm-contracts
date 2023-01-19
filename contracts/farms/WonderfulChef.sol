@@ -5,10 +5,10 @@ pragma solidity 0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "../interfaces/IFantasticStaking.sol";
+import "../interfaces/IWonderfulStaking.sol";
 import "../interfaces/IRewarder.sol";
 
-contract FantasticChef is Ownable {
+contract WonderfulChef is Ownable {
     using SafeERC20 for IERC20;
 
     struct UserInfo {
@@ -22,7 +22,7 @@ contract FantasticChef is Ownable {
         uint256 allocPoint;
     }
 
-    IFantasticStaking public rewardMinter;
+    IWonderfulStaking public rewardMinter;
 
     /// @notice Info of each MCV2 pool.
     PoolInfo[] public poolInfo;
@@ -258,7 +258,7 @@ contract FantasticChef is Ownable {
         rewarder.push(_rewarder);
 
         poolInfo.push(PoolInfo({allocPoint: allocPoint, lastRewardTime: block.timestamp, accRewardPerShare: 0}));
-        require(poolInfo.length <= MAX_NUM_OF_POOLS, "FantasticChef::add: > MAX_NUM_OF_POOLS");
+        require(poolInfo.length <= MAX_NUM_OF_POOLS, "WonderfulChef::add: > MAX_NUM_OF_POOLS");
         emit LogPoolAddition(lpToken.length - 1, allocPoint, _lpToken, _rewarder);
     }
 
@@ -285,7 +285,7 @@ contract FantasticChef is Ownable {
     /// @notice Sets the reward per second to be distributed. Can only be called by the owner.
     /// @param _rewardPerSecond The amount of reward to be distributed per second.
     function setRewardPerSecond(uint256 _rewardPerSecond) public onlyOwner {
-        require(_rewardPerSecond <= MAX_REWARD_PER_SECOND, "FantasticChef::setRewardPerSecond: > MAX_REWARD_PER_SECOND");
+        require(_rewardPerSecond <= MAX_REWARD_PER_SECOND, "WonderfulChef::setRewardPerSecond: > MAX_REWARD_PER_SECOND");
         massUpdatePools();
         rewardPerSecond = _rewardPerSecond;
         emit LogRewardPerSecond(_rewardPerSecond);
@@ -293,8 +293,8 @@ contract FantasticChef is Ownable {
 
     /// @notice Set the address of rewardMinter.  Can only be called ONCE by the owner.
     /// @param _rewardMinter Address of MultiFeeDistribution contract
-    function setRewardMinter(IFantasticStaking _rewardMinter) external {
-        require(address(rewardMinter) == address(0), "FantasticChef::setRewardMinter: Cannot redefine rewardMinter");
+    function setRewardMinter(IWonderfulStaking _rewardMinter) external {
+        require(address(rewardMinter) == address(0), "WonderfulChef::setRewardMinter: Cannot redefine rewardMinter");
         rewardMinter = _rewardMinter;
     }
 

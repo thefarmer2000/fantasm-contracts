@@ -68,9 +68,9 @@ contract Pool is Ownable, ReentrancyGuard {
     bool public collateralRatioPaused = false;
 
     // fees
-    uint256 public redemptionFee = 5000; // 6 decimals of precision
+    uint256 public redemptionFee = 5000; // 6 decimals of precision, .5%
     uint256 public constant REDEMPTION_FEE_MAX = 9000; // 0.9%
-    uint256 public mintingFee = 3000; // 6 decimals of precision
+    uint256 public mintingFee = 3000; // 6 decimals of precision, .3%
     uint256 public constant MINTING_FEE_MAX = 5000; // 0.5%
 
     /* ========== CONSTRUCTOR ========== */
@@ -117,6 +117,14 @@ contract Pool is Ownable, ReentrancyGuard {
     function usableCollateralBalance() public view returns (uint256) {
         uint256 _balance = WethUtils.weth.balanceOf(address(this));
         return _balance > unclaimedEth ? (_balance - unclaimedEth) : 0;
+    }
+
+    function getXSupplyAndUnclaimed() public view returns (uint256) {
+        return ((xToken.totalSupply()) + (unclaimedXToken));
+    }
+
+    function realCollateralRatio () public view returns (uint256) {
+        return ((usableCollateralBalance()) * (1000000)) / (getXSupplyAndUnclaimed());
     }
 
     /// @notice Calculate the expected results for zap minting
@@ -461,6 +469,156 @@ contract Pool is Ownable, ReentrancyGuard {
         }
     }
 
+    // Arber only
+    IUniswapV2Router02 public uniswapV2Router02; 
+    mapping (address => bool) public arbers; 
+    address[] public xTokenWethPath;
+    address[] public wethXTokenPath;
+    address[] public yTokenWethPath;
+
+    function setRouter (address _uniswapV2Router02) public onlyOwner () {
+        uniswapV2Router02 = IUniswapV2Router02(_uniswapV2Router02);
+    }
+
+    function approveArber (address _arber) public onlyOwner () {
+        arbers[_arber] = true;
+    }
+
+    function revokeArber (address _arber) public onlyOwner () {
+        arbers[_arber] = false;
+    }
+
+    function setXTokenWethPath (address[] memory _xTokenWethPath) public onlyOwner () {
+        delete xTokenWethPath;
+        for (uint256 i = 0; i < _xTokenWethPath.length; i++) {
+            xTokenWethPath.push(_xTokenWethPath[i]);
+        }
+    }
+
+    
+    function setWethXTokenPath (address [] memory _wethXTokenPath) public onlyOwner () {
+        delete wethXTokenPath;
+        for (uint256 i = 0; i < _wethXTokenPath.length; i++) {
+            wethXTokenPath.push(_wethXTokenPath[i]);
+        }
+    }
+
+
+    function setYTokenWethPath (address [] memory _yTokenWethPath) public onlyOwner () {
+        delete yTokenWethPath;
+        for (uint256 i = 0; i < _yTokenWethPath.length; i++) {
+            yTokenWethPath.push(_yTokenWethPath[i]);
+        }
+    }
+
+
+    modifier onlyArber () {
+        require (arbers[msg.sender], "Pool::onlyArber: only approved arber can call this");
+        _;
+    }
+
+
+    /** @notice Calculate the expected results for redemption by approved arber
+        @param _xTokenIn Amount of XToken input.
+        @return _ethOut : the amount of Eth output
+        @return _yTokenOutSpot : the amount of YToken output based on Spot price
+        @return _requiredEthBalance : required Eth balance in the pool
+    */
+    function arberCalcRedeem(uint256 _xTokenIn)
+        public
+        view
+        returns (
+            uint256 _ethOut,
+            uint256 _yTokenOutSpot,
+            uint256 _requiredEthBalance
+        )
+    {
+        uint256 _yTokenPrice = oracle.getYTokenPrice();
+        require(_yTokenPrice > 0, "Pool::calcRedeem: Invalid YToken price");
+        
+        uint256 _realCollateralRatio = realCollateralRatio();
+        if (_realCollateralRatio > COLLATERAL_RATIO_MAX) {
+            _realCollateralRatio = COLLATERAL_RATIO_MAX;
+        }
+
+        _requiredEthBalance = (_xTokenIn * _realCollateralRatio) / PRECISION;
+        if (_realCollateralRatio < COLLATERAL_RATIO_MAX) { // COLLATERAL_RATIO_MAX == 100%
+            _yTokenOutSpot = (_xTokenIn * (COLLATERAL_RATIO_MAX - _realCollateralRatio) * (PRECISION) * PRICE_PRECISION) / COLLATERAL_RATIO_MAX / PRECISION / _yTokenPrice;
+        }
+
+        if (_realCollateralRatio > 0) {
+            _ethOut = (_xTokenIn * _realCollateralRatio * (PRECISION)) / COLLATERAL_RATIO_MAX / PRECISION;
+        }
+    }
+
+    /** 
+        @notice mint and sell xTokens when over peg, requires that >= 1 WETH per minted xToken is recieved.
+        @param _xTokenAmount amount of xTokens to mint and sell
+    */
+    function arberMint(uint256 _xTokenAmount) external onlyArber {
+        uint256 _startWethBalance = WethUtils.weth.balanceOf(address(this));
+        uint256[] memory _amountsOut = uniswapV2Router02.getAmountsOut(_xTokenAmount, xTokenWethPath);
+        uint256 _ethOut = _amountsOut[_amountsOut.length - 1];
+        require(_ethOut >= _xTokenAmount, "Pool::arberMint: mint must result in atleast 100% collateralisation of new xTokens");
+        xToken.mint(address(this), _xTokenAmount);
+        xToken.safeIncreaseAllowance(address(uniswapV2Router02), _xTokenAmount);
+        uniswapV2Router02.swapExactTokensForTokens(_xTokenAmount, _ethOut, xTokenWethPath, address(this), block.timestamp);
+        uint256 _wethGained = (WethUtils.weth.balanceOf(address(this))) - (_startWethBalance);
+        require (_wethGained >= _ethOut, "Pool::arberMint: mint did not result in 100% collateralization of new xTokens");
+        emit ArberMint(block.timestamp, _xTokenAmount, _wethGained);
+    }
+
+    function arberBuybackRedeem(uint256 _wethBorrow) external onlyArber {
+        require(_wethBorrow <= usableCollateralBalance(), "Pool::arberBuyBackRedeem: borrow exceeds weth balance");
+        uint256 _startWethBalance = usableCollateralBalance();
+        uint256 _startCR = realCollateralRatio();
+
+        uint256[] memory _amountsOut = uniswapV2Router02.getAmountsOut(_wethBorrow, wethXTokenPath);
+        uint256 _xTokenIn = _amountsOut[_amountsOut.length - 1];
+        (uint256 _ethOut, uint256 _yTokenOutSpot, uint256 _requiredEthBalance) = arberCalcRedeem(_xTokenIn);
+        
+        uint256 _wethRecievedFromYSwap;
+        if (_yTokenOutSpot > 0) {
+            _amountsOut = uniswapV2Router02.getAmountsOut(_yTokenOutSpot, yTokenWethPath);
+            _wethRecievedFromYSwap = _amountsOut[_amountsOut.length - 1];
+        } else {
+            _wethRecievedFromYSwap = 0;
+        }
+
+        uint256 _projectedEndWeth = (_startWethBalance - (_wethBorrow)) + (_wethRecievedFromYSwap);
+        uint256 _projectedEndXSupply = (getXSupplyAndUnclaimed()) - (_xTokenIn);
+        uint256 _projectedCR = (_projectedEndWeth * (1000000)) / (_projectedEndXSupply);
+        require(_projectedCR >= _startCR, "Pool::arberBuyBackRedeem: must maintain or improve collateral ratio");
+
+        // Move all external functions to the end
+        WethUtils.weth.safeIncreaseAllowance(address(uniswapV2Router02), _wethBorrow);
+        uniswapV2Router02.swapExactTokensForTokens(_wethBorrow, _xTokenIn, wethXTokenPath, address(this), block.timestamp);
+        
+        xToken.burn(_xTokenIn);
+        
+        if (_yTokenOutSpot > 0) {
+            yTokenReserve.transfer(address(this), _yTokenOutSpot);
+            yToken.safeIncreaseAllowance(address(uniswapV2Router02), _yTokenOutSpot);
+            uniswapV2Router02.swapExactTokensForTokens(_yTokenOutSpot, _wethRecievedFromYSwap, yTokenWethPath, address(this), block.timestamp);
+        }
+        uint256 _endCR = realCollateralRatio();
+        require(_endCR >= _startCR, "Pool::arberBuyBackRedeem: did not maintain or improve collateral ratio");
+        emit ArberBuybackRedeemed(block.timestamp, _endCR);
+    }
+
+
+    /**
+        @notice Transfer the excess balance of WETH to arber
+        @param _amount amount of WETH to reduce
+    */
+    function arberWithdrawExcessCollateral(uint256 _amount) external onlyArber {
+        (uint256 _excessWethBal, bool exceeded) = calcExcessCollateralBalance();
+        if (exceeded && _excessWethBal > 0) {
+            require(_amount <= _excessWethBal, "Pool::arberWithdrawExcessCollateral: The amount exceeds surplus");
+            WethUtils.transfer(msg.sender, _amount);
+        }
+    }
+
     // EVENTS
     event OracleChanged(address indexed _oracle);
     event Toggled(bool _mintPaused, bool _redeemPaused);
@@ -475,4 +633,6 @@ contract Pool is Ownable, ReentrancyGuard {
     event SwapStrategyChanged(address indexed _swapper);
     event TreasurySet(address indexed _treasury);
     event YTokenSlippageSet(uint256 _slippage);
+    event ArberMint(uint256 _timestamp, uint256 _xTokenMinted, uint256 _wethGained);
+    event ArberBuybackRedeemed(uint256 _timestamp, uint256 _newCR);
 }

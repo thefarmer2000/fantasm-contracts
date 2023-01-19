@@ -4,10 +4,10 @@ pragma solidity 0.8.4;
 
 import "./Fund.sol";
 
-contract FsmTreasuryFund is Fund {
+contract GFXTreasuryFund is Fund {
     uint256 public constant ALLOCATION = 3_000_000 ether; // 10%
     uint256 public constant VESTING_DURATION = 3 * 365 * 24 * 3600; // 3 years
-    uint256 public constant VESTING_START = 1648130400; // 24th Mar 2022, 2PM UTC
+    uint256 public constant VESTING_START = 1677560400; // 28 Feb 2023, 00:00:00 UTC
 
     /*===================== VIEWS =====================*/
 

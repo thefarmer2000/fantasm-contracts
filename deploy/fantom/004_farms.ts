@@ -11,29 +11,29 @@ const func: DeployFunction = async ({deployments, getNamedAccounts, wellknown}) 
   console.log('> wellknow:' + JSON.stringify(wellknown));
   console.log((wellknown as any)[network.name].addresses);
 
-  const lp_xftm_eth = {address: (wellknown as any)[network.name].addresses.xTokenEth};
-  const lp_fsm_eth = {address: (wellknown as any)[network.name].addresses.yTokenEth};
+  const lp_gftm_eth = "0x8b74df2ffa35464cb6cb96888ff8eecae29f728f"  //{address: (wellknown as any)[network.name].addresses.xTokenEth};
+  const lp_gfx_eth = "0x63B560616CcCc218ade162bB580579f55c3320bb" //{address: (wellknown as any)[network.name].addresses.yTokenEth};
 
-  await deploy('FantasticChef', {
+  await deploy('WonderfulChef', {
     from: deployer,
     log: true,
   });
 
   await execute(
-    'FantasticChef',
+    'WonderfulChef',
     {from: deployer, log: true},
     'add',
-    30000,
-    lp_fsm_eth.address,
+    80000,
+    lp_gfx_eth,
     constants.AddressZero
   );
 
   await execute(
-    'FantasticChef',
+    'WonderfulChef',
     {from: deployer, log: true},
     'add',
-    70000,
-    lp_xftm_eth.address,
+    20000,
+    lp_gftm_eth,
     constants.AddressZero
   );
 };

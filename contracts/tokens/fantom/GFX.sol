@@ -4,7 +4,7 @@ pragma solidity 0.8.4;
 
 import "../YToken.sol";
 
-contract FSM is YToken {
+contract GFX is YToken {
     uint256 public constant MAX_TOTAL_SUPPLY = 30_000_000 ether;
 
     constructor(

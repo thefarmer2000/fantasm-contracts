@@ -6,14 +6,14 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "../interfaces/IFantasticTreasury.sol";
+import "../interfaces/IWonderfulTreasury.sol";
 import "../libs/WethUtils.sol";
 
 contract StratReduceReserveLP is Ownable {
     using SafeERC20 for IWETH;
     using SafeERC20 for IERC20;
 
-    IFantasticTreasury public treasury;
+    IWonderfulTreasury public treasury;
     IERC20 public yToken;
     address public yTokenFund;
     IERC20 public lp;
@@ -28,7 +28,7 @@ contract StratReduceReserveLP is Ownable {
         IERC20 _lp,
         IUniswapV2Router02 _swapRouter,
         address[] memory _swapPaths,
-        IFantasticTreasury _treasury
+        IWonderfulTreasury _treasury
     ) {
         yToken = _yToken;
         lp = _lp;

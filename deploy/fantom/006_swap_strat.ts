@@ -12,23 +12,22 @@ const func: DeployFunction = async ({deployments, getNamedAccounts, wellknown}) 
 
   const weth = {address: (wellknown as any)[network.name].addresses.weth};
   const swapRouter = {address: (wellknown as any)[network.name].addresses.swapRouter};
-  const lp_fsm_eth = {address: (wellknown as any)[network.name].addresses.yTokenEth};
+  const lp_gfx_eth = "0x63B560616CcCc218ade162bB580579f55c3320bb"; //{address: (wellknown as any)[network.name].addresses.yTokenEth};
 
-  const fsm = await get('FSM');
-  const treasury = await get('FantasticTreasury');
+  const gfx = await get('GFX');
+  const treasury = await get('WonderfulTreasury');
   const wethUtils = await get('WethUtils');
 
   const swapSlippage = 20000; // 2%
-  const swapPaths = [weth.address, fsm.address];
+  const swapPaths = [weth.address, gfx.address];
   const swapStrat = await deploy('SwapStrategyPOL', {
     from: deployer,
     log: true,
     args: [
-      fsm.address,
-      lp_fsm_eth.address,
+      gfx.address,
+      lp_gfx_eth,
       treasury.address,
       swapRouter.address,
-      swapSlippage,
       swapPaths,
     ],
     libraries: {

@@ -9,3 +9,7 @@ deployments/localhost
 deployments/hardhat
 bin
 .DS_Store
+hardhat.config.ts
+/deployments/fantom
+networks.ts
+/hardhat.config.ts

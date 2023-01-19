@@ -1,47 +1,49 @@
+import { BigNumber } from 'ethers';
 import {DeployFunction} from 'hardhat-deploy/dist/types';
 
 const func: DeployFunction = async ({deployments, getNamedAccounts}) => {
   const {deploy, execute} = deployments;
   const {deployer} = await getNamedAccounts();
+  console.log("Deployer: " + deployer)
 
-  await deploy('XFTM', {
-    contract: 'XFTM',
+  await deploy('GFTM', {
+    contract: 'GFTM',
     from: deployer,
     log: true,
-    args: ['Fantastic Protocol XFTM Token', 'XFTM'],
+    args: ['Wonderly GFTM Token', 'GFTM'],
   });
 
-  const reserve = await deploy('FsmReserve', {
-    from: deployer,
-    log: true,
-    args: [],
-  });
-
-  const treasuryFund = await deploy('FsmTreasuryFund', {
+  const reserve = await deploy('GFXReserve', {
     from: deployer,
     log: true,
     args: [],
   });
 
-  const daoFund = await deploy('FsmDaoFund', {
+  const treasuryFund = await deploy('GFXTreasuryFund', {
     from: deployer,
     log: true,
     args: [],
   });
 
-  const devFund = await deploy('FsmDevFund', {
+  const daoFund = await deploy('GFXDaoFund', {
     from: deployer,
     log: true,
     args: [],
   });
 
-  const fsm = await deploy('FSM', {
-    contract: 'FSM',
+  const devFund = await deploy('GFXDevFund', {
+    from: deployer,
+    log: true,
+    args: [],
+  });
+
+  const gfx = await deploy('GFX', {
+    contract: 'GFX',
     from: deployer,
     log: true,
     args: [
-      'Fantastic Protocol FSM Token',
-      'FSM',
+      'Wonderly GFX Token',
+      'GFX',
       daoFund.address,
       devFund.address,
       treasuryFund.address,
@@ -49,10 +51,10 @@ const func: DeployFunction = async ({deployments, getNamedAccounts}) => {
     ],
   });
 
-  await execute('FsmReserve', {from: deployer, log: true }, 'initialize', fsm.address);
-  await execute('FsmDaoFund', {from: deployer, log: true }, 'initialize', fsm.address);
-  await execute('FsmTreasuryFund', {from: deployer, log: true }, 'initialize', fsm.address);
-  await execute('FsmDevFund', {from: deployer, log: true }, 'initialize', fsm.address);
+  // await execute('GFXReserve', {from: deployer, log: true }, 'initialize', gfx.address);
+  // await execute('GFXDaoFund', {from: deployer, log: true }, 'initialize', gfx.address);
+  // await execute('GFXTreasuryFund', {from: deployer, log: true }, 'initialize', gfx.address);
+  // await execute('GFXDevFund', {from: deployer, log: true}, 'initialize', gfx.address);
 };
 
 func.tags = ['tokens'];

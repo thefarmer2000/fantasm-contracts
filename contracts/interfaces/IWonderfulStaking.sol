@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.4;
 
-interface IFantasticStaking {
+interface IWonderfulStaking {
     function addReward(address rewardsToken, address distributor) external;
 
     function mint(address user, uint256 amount) external;

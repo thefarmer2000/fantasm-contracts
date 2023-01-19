@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import {HardhatUserConfig} from 'hardhat/types';
+import {HardhatUserConfig, HttpNetworkAccountsUserConfig} from 'hardhat/types';
 import 'hardhat-deploy';
 import 'hardhat-deploy-ethers';
 import 'hardhat-gas-reporter';
@@ -46,14 +46,14 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     currency: 'USD',
-    gasPrice: 5,
+    gasPrice: 150,
     enabled: !!process.env.REPORT_GAS,
   },
   etherscan: {
     apiKey: etherscanApiKey(),
   },
   namedAccounts: {
-    deployer: 0
+    deployer: 7
   },
 };
 

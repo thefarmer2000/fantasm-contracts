@@ -1,9 +1,9 @@
 export const wellknown = {
   fantom: {
     addresses: {
-      weth: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
-      xTokenEth: '0x55E784f2b127f6AbF5cD7C8ffCD1836889E8A885', // xftm/weth
-      yTokenEth: '0x846d642859Fe7d613325AbFDB9eaaEC9474f6B69', // fsm/weth
+      weth: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83', // wftm
+      xTokenEth: '0x8b74df2ffa35464cb6cb96888ff8eecae29f728f', // gftm/wftm
+      yTokenEth: '0x63B560616CcCc218ade162bB580579f55c3320bb', // gfx/wftm
       swapRouter: '0xF491e7B69E4244ad4002BC14e878a34207E38c29', // spooky
     },
   },

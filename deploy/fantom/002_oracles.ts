@@ -10,30 +10,30 @@ const func: DeployFunction = async ({deployments, getNamedAccounts, wellknown}) 
   console.log('> wellknow:' + JSON.stringify(wellknown));
   console.log((wellknown as any)[network.name].addresses);
 
-  const lp_xftm_eth = {address: (wellknown as any)[network.name].addresses.xTokenEth};
-  const lp_fsm_eth = {address: (wellknown as any)[network.name].addresses.yTokenEth};
+  const lp_gftm_eth = "0x8b74df2ffa35464cb6cb96888ff8eecae29f728f"  //{address: (wellknown as any)[network.name].addresses.xTokenEth};
+  const lp_gfx_eth = "0x63B560616CcCc218ade162bB580579f55c3320bb" //{address: (wellknown as any)[network.name].addresses.yTokenEth};
 
-  const pairFsmEth = await deploy('PairOracle_FSM_ETH', {
+  const pairGFXEth = await deploy('PairOracle_GFX_ETH', {
     contract: 'UniswapPairOracle',
     from: deployer,
     log: true,
-    args: [lp_fsm_eth.address],
+    args: [lp_gfx_eth], // .address
   });
 
-  const pairXftmEth = await deploy('PairOracle_XFTM_ETH', {
+  const pairGFTMEth = await deploy('PairOracle_GFTM_ETH', {
     contract: 'UniswapPairOracle',
     from: deployer,
     log: true,
-    args: [lp_xftm_eth.address],
+    args: [lp_gftm_eth], // .address
   });
 
-  const xftm = await get('XFTM');
-  const fsm = await get('FSM');
+  const gftm = await get('GFTM');
+  const gfx = await get('GFX');
 
   await deploy('MasterOracle', {
     from: deployer,
     log: true,
-    args: [xftm.address, fsm.address, pairXftmEth.address, pairFsmEth.address],
+    args: [gftm.address, gfx.address, pairGFTMEth.address, pairGFXEth.address],
   });
 };
 

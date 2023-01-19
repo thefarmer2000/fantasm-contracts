@@ -12,7 +12,7 @@ import "../interfaces/IYTokenReserve.sol";
 import "../libs/WethUtils.sol";
 
 // Based on EPS's & Geist's MultiFeeDistribution
-contract FantasticStaking is ReentrancyGuard, Ownable {
+contract WonderfulStaking is ReentrancyGuard, Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
     using SafeERC20 for IYToken;
@@ -46,10 +46,10 @@ contract FantasticStaking is ReentrancyGuard, Ownable {
     mapping(address => Reward) public rewardData;
 
     // Duration that rewards are streamed over
-    uint256 public constant rewardsDuration = 86400 * 7; // 1 week
+    uint256 public constant rewardsDuration = 86400 * 7; // 1 weeks
 
     // Duration of lock/earned penalty period
-    uint256 public constant lockDuration = rewardsDuration * 8; // 8 weeks
+    uint256 public constant lockDuration = rewardsDuration * 4; // 4 weeks
 
     // Addresses approved to call mint
     mapping(address => bool) public minters;
@@ -250,7 +250,7 @@ contract FantasticStaking is ReentrancyGuard, Ownable {
     /* ========== MUTATIVE FUNCTIONS ========== */
 
     // Stake tokens to receive rewards
-    // Locked tokens cannot be withdrawn for lockDuration and are eligible to receive stakingReward rewards
+    // Locked tokens cannot be withdrawn for lockedStakingLockDuration and are eligible to receive stakingReward rewards
     function stake(uint256 amount, bool lock) external nonReentrant updateReward(msg.sender) {
         require(amount > 0, "MultiFeeDistribution::stake: Cannot stake 0");
         totalSupply = totalSupply.add(amount);
@@ -275,7 +275,7 @@ contract FantasticStaking is ReentrancyGuard, Ownable {
 
     // Mint new tokens
     // Minted tokens receive rewards normally but incur a 50% penalty when
-    // withdrawn before lockDuration has passed.
+    // withdrawn before rewardsLockDuration has passed.
     function mint(address user, uint256 amount) external updateReward(user) {
         require(minters[msg.sender], "MultiFeeDistribution::mint: Only minters allowed");
         totalSupply = totalSupply.add(amount);
