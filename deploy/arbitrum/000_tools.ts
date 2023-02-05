@@ -35,8 +35,8 @@ const func: DeployFunction = async ({deployments, getNamedAccounts}) => {
 
 func.tags = ['tools'];
 
-func.skip = async ({network}) => {
-  return network.name !== 'fantom';
-};
+// func.skip = async ({network}) => {
+//   return network.name !== 'fantom';
+// };
 
 export default func;

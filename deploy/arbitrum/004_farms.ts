@@ -11,8 +11,8 @@ const func: DeployFunction = async ({deployments, getNamedAccounts, wellknown}) 
   console.log('> wellknow:' + JSON.stringify(wellknown));
   console.log((wellknown as any)[network.name].addresses);
 
-  const lp_gftm_eth = "0x8b74df2ffa35464cb6cb96888ff8eecae29f728f"  //{address: (wellknown as any)[network.name].addresses.xTokenEth};
-  const lp_gfx_eth = "0x63B560616CcCc218ade162bB580579f55c3320bb" //{address: (wellknown as any)[network.name].addresses.yTokenEth};
+  const lp_xeth_eth = "0x0e4a0caEb84A9c2904704d02738d40a82BE3c8Cb"  //{address: (wellknown as any)[network.name].addresses.xTokenEth};
+  const lp_afx_eth = "0xa6bd5B143c2dEC9BDB7F1355AB0d6290B5B11608" //{address: (wellknown as any)[network.name].addresses.yTokenEth};
 
   await deploy('WonderfulChef', {
     from: deployer,
@@ -24,7 +24,7 @@ const func: DeployFunction = async ({deployments, getNamedAccounts, wellknown}) 
     {from: deployer, log: true},
     'add',
     80000,
-    lp_gfx_eth,
+    lp_afx_eth,
     constants.AddressZero
   );
 
@@ -33,15 +33,15 @@ const func: DeployFunction = async ({deployments, getNamedAccounts, wellknown}) 
     {from: deployer, log: true},
     'add',
     20000,
-    lp_gftm_eth,
+    lp_xeth_eth,
     constants.AddressZero
   );
 };
 
 func.tags = ['farm'];
 
-func.skip = async ({network}) => {
-  return network.name !== 'fantom';
-};
+// func.skip = async ({network}) => {
+//   return network.name !== 'fantom';
+// };
 
 export default func;

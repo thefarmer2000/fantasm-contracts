@@ -10,28 +10,28 @@ const func: DeployFunction = async ({deployments, getNamedAccounts, wellknown}) 
   console.log('> wellknow:' + JSON.stringify(wellknown));
   console.log((wellknown as any)[network.name].addresses);
 
-  const reserve = await get('GFXReserve');
-  const gftm = await get('GFTM');
-  const gfx = await get('GFX');
+  const reserve = await get('AFXReserve');
+  const xeth = await get('XETH');
+  const afx = await get('AFX');
   const wethUtils = await get('WethUtils');
 
   await deploy('Pool', {
     from: deployer,
     log: true,
-    args: [gftm.address, gfx.address, reserve.address],
+    args: [xeth.address, afx.address, reserve.address],
     libraries: {
       WethUtils: wethUtils.address,
     },
   });
 
   const oracle = await get('MasterOracle');
- // await execute('Pool', {from: deployer, log: true}, 'setOracle', oracle.address);
+  await execute('Pool', {from: deployer, log: true}, 'setOracle', oracle.address);
 };
 
 func.tags = ['pool'];
 
-func.skip = async ({network}) => {
-  return network.name !== 'fantom';
-};
+// func.skip = async ({network}) => {
+//   return network.name !== 'fantom';
+// };
 
 export default func;

@@ -43,17 +43,27 @@ const config: HardhatUserConfig = {
       chainId: 43114,
       accounts: accounts('avax'),
     },
+    goerli: {
+      url: 'https://rpc.ankr.com/eth_goerli',
+      chainId: 5,
+      accounts: accounts('goerli'),
+    },
+    arbitrum: {
+      url: 'https://1rpc.io/arb',
+      chainId: 42161,
+      accounts: accounts('arbitrum'),
+    }
   },
   gasReporter: {
     currency: 'USD',
-    gasPrice: 150,
+    gasPrice: 0.1,
     enabled: !!process.env.REPORT_GAS,
   },
   etherscan: {
     apiKey: etherscanApiKey(),
   },
   namedAccounts: {
-    deployer: 7
+    deployer: 0
   },
 };
 

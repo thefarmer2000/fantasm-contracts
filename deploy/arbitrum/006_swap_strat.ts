@@ -12,20 +12,20 @@ const func: DeployFunction = async ({deployments, getNamedAccounts, wellknown}) 
 
   const weth = {address: (wellknown as any)[network.name].addresses.weth};
   const swapRouter = {address: (wellknown as any)[network.name].addresses.swapRouter};
-  const lp_gfx_eth = "0x63B560616CcCc218ade162bB580579f55c3320bb"; //{address: (wellknown as any)[network.name].addresses.yTokenEth};
+  const lp_afx_eth = "0xa6bd5B143c2dEC9BDB7F1355AB0d6290B5B11608"; //{address: (wellknown as any)[network.name].addresses.yTokenEth};
 
-  const gfx = await get('GFX');
+  const afx = await get('AFX');
   const treasury = await get('WonderfulTreasury');
   const wethUtils = await get('WethUtils');
 
   const swapSlippage = 20000; // 2%
-  const swapPaths = [weth.address, gfx.address];
+  const swapPaths = [weth.address, afx.address];
   const swapStrat = await deploy('SwapStrategyPOL', {
     from: deployer,
     log: true,
     args: [
-      gfx.address,
-      lp_gfx_eth,
+      afx.address,
+      lp_afx_eth,
       treasury.address,
       swapRouter.address,
       swapPaths,
@@ -41,8 +41,8 @@ const func: DeployFunction = async ({deployments, getNamedAccounts, wellknown}) 
 
 func.tags = ['swap_strat'];
 
-func.skip = async ({network}) => {
-  return network.name !== 'fantom';
-};
+// func.skip = async ({network}) => {
+//   return network.name !== 'fantom';
+// };
 
 export default func;

@@ -14,14 +14,14 @@ const func: DeployFunction = async ({deployments, getNamedAccounts, wellknown}) 
   const weth = {address: (wellknown as any)[network.name].addresses.weth};
 
   const farm = await get('WonderfulChef');
-  const gfx = await get('GFX');
-  const reserve = await get('GFXReserve');
+  const afx = await get('AFX');
+  const reserve = await get('AFXReserve');
   const wethUtils = await get('WethUtils');
 
   const staking = await deploy('WonderfulStaking', {
     from: deployer,
     log: true,
-    args: [gfx.address, reserve.address, [farm.address]],
+    args: [afx.address, reserve.address, [farm.address]],
     libraries: {
       WethUtils: wethUtils.address,
     },
@@ -46,8 +46,8 @@ const func: DeployFunction = async ({deployments, getNamedAccounts, wellknown}) 
 
 func.tags = ['staking'];
 
-func.skip = async ({network}) => {
-  return network.name !== 'fantom';
-};
+// func.skip = async ({network}) => {
+//   return network.name !== 'fantom';
+// };
 
 export default func;

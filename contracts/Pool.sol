@@ -70,7 +70,7 @@ contract Pool is Ownable, ReentrancyGuard {
     // fees
     uint256 public redemptionFee = 5000; // 6 decimals of precision, .5%
     uint256 public constant REDEMPTION_FEE_MAX = 9000; // 0.9%
-    uint256 public mintingFee = 3000; // 6 decimals of precision, .3%
+    uint256 public mintingFee = 5000; // 6 decimals of precision, .5%
     uint256 public constant MINTING_FEE_MAX = 5000; // 0.5%
 
     /* ========== CONSTRUCTOR ========== */

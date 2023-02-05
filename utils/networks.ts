@@ -42,7 +42,7 @@ export function accounts(networkName?: string): {mnemonic: string} {
 }
 
 export const etherscanApiKey = (): string => {
-  return process.env['ETHERSCAN_API_KEY'] || 'E8488WBVUYVG95GIZKHNHXJUUN3RBHZPHM';
+  return process.env['ETHERSCAN_API_KEY'] || 'H1YMWUAYRVVTPTW72I48WESHEGP4ZYQ3T3';
 };
 
 export const skipTags = (func: DeployFunction): void => {
